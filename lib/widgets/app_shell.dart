@@ -1,6 +1,8 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../theme/app_theme.dart';
 
 class TabItem {
@@ -18,46 +20,35 @@ const List<TabItem> tabs = [
   TabItem(label: 'Settings', icon: LucideIcons.settings),
 ];
 
-class AppShell extends StatefulWidget {
+class AppShell extends StatelessWidget {
   final List<Widget> pages;
-  final int initialIndex;
+  final int currentIndex;
+  final ValueChanged<int> onTabChanged;
 
   const AppShell({
     super.key,
     required this.pages,
-    this.initialIndex = 0,
+    required this.currentIndex,
+    required this.onTabChanged,
   });
-
-  @override
-  State<AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<AppShell> {
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
-  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark ? AppColors.borderDark : AppColors.border;
-    final foregroundColor = isDark ? AppColors.foregroundDark : AppColors.foreground;
-    final mutedForeground = isDark ? AppColors.mutedForegroundDark : AppColors.mutedForeground;
+    final foregroundColor = isDark
+        ? AppColors.foregroundDark
+        : AppColors.foreground;
+    final mutedForeground = isDark
+        ? AppColors.mutedForegroundDark
+        : AppColors.mutedForeground;
 
     return Scaffold(
-      // Max width constraint like 'max-w-md mx-auto'
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 448), // Tailwind max-w-md ~ 28rem
-          child: IndexedStack(
-            index: _currentIndex,
-            children: widget.pages,
-          ),
+          constraints: const BoxConstraints(maxWidth: 448),
+          child: IndexedStack(index: currentIndex, children: pages),
         ),
       ),
       bottomNavigationBar: Center(
@@ -69,28 +60,31 @@ class _AppShellState extends State<AppShell> {
               child: Container(
                 decoration: BoxDecoration(
                   color: surfaceColor.withValues(alpha: 0.95),
-                  border: Border(
-                    top: BorderSide(color: borderColor, width: 1),
-                  ),
+                  border: Border(top: BorderSide(color: borderColor, width: 1)),
                 ),
                 child: SafeArea(
                   top: false,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 6.0,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: List.generate(tabs.length, (index) {
                         final tab = tabs[index];
-                        final isActive = _currentIndex == index;
+                        final isActive = currentIndex == index;
 
                         return Expanded(
                           child: InkWell(
-                            onTap: () => setState(() => _currentIndex = index),
+                            onTap: () => onTabChanged(index),
                             borderRadius: BorderRadius.circular(12),
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -101,7 +95,9 @@ class _AppShellState extends State<AppShell> {
                                     height: 32,
                                     decoration: BoxDecoration(
                                       color: isActive
-                                          ? AppColors.accent.withValues(alpha: 0.25)
+                                          ? AppColors.accent.withValues(
+                                              alpha: 0.25,
+                                            )
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -109,7 +105,9 @@ class _AppShellState extends State<AppShell> {
                                     child: Icon(
                                       tab.icon,
                                       size: 18,
-                                      color: isActive ? foregroundColor : mutedForeground,
+                                      color: isActive
+                                          ? foregroundColor
+                                          : mutedForeground,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -120,7 +118,9 @@ class _AppShellState extends State<AppShell> {
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
-                                      color: isActive ? foregroundColor : mutedForeground,
+                                      color: isActive
+                                          ? foregroundColor
+                                          : mutedForeground,
                                     ),
                                   ),
                                 ],
